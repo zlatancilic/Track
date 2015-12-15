@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.zlatan.track.POIList"
+    tools:showIn="@layout/activity_poilist"
+    android:orientation="vertical">
+
+
+
+
+    <ListView
+        android:id="@+id/poi_list"
+        android:layout_width="fill_parent"
+        android:layout_height="0px"
+        android:drawSelectorOnTop="false"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/footer"
+        android:layout_width="fill_parent"
+        android:layout_height="30dip"
+        android:text="Long press to send command"
+        android:textSize="14sp"
+        android:padding="4dip"
+        android:textAlignment="center" />
+</LinearLayout>
