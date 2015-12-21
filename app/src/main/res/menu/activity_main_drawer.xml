@@ -6,5 +6,10 @@
             android:id="@+id/nav_poilist"
             android:icon="@drawable/pin_logo_menu"
             android:title="POI List" />
+
+        <item
+            android:id="@+id/nav_poi_edit_create"
+            android:icon="@drawable/edit_logo_menu"
+            android:title="Edit/Create POI" />
     </group>
 </menu>

@@ -9,4 +9,6 @@
     <string name="title_activity_login">LoginActivity</string>
     <string name="title_activity_command_list">CommandList</string>
     <string name="title_activity_poicommand_list">POICommandList</string>
+    <string name="title_activity_edit_create_list_poi">EditCreateListPOI</string>
+    <string name="title_activity_add_poi">AddPOI</string>
 </resources>

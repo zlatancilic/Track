@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs" ;
     public static final String KeyUsername = "usernameTestKey";
     public static final String KeyPassword = "passwordTestKey";
+    public static final String KeyAppKey = "appKeyTestKey";
     SharedPreferences sharedpreferences;
     String enteredUsername;
     String enteredPassword;
@@ -118,7 +119,8 @@ public class LoginActivity extends AppCompatActivity {
                 apiResponse = stringBuffer.toString();
                 try {
                     JSONObject resposneJsonObject = new JSONObject(apiResponse);
-                    String key = resposneJsonObject.getString("session_key");
+                    JSONObject userData = resposneJsonObject.getJSONObject("user");
+                    String key = userData.getString("session_key");
                     return key;
                 }
                 catch(JSONException je) {
@@ -155,6 +157,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 editor.putString(KeyUsername, enteredUsername);
                 editor.putString(KeyPassword, enteredPassword);
+                editor.putString(KeyAppKey, result);
                 editor.commit();
 
                 Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
@@ -180,9 +183,10 @@ public class LoginActivity extends AppCompatActivity {
         if (sharedpreferences.contains(KeyUsername) && sharedpreferences.contains(KeyPassword)) {
             String username = sharedpreferences.getString(KeyUsername, null);
             String password = sharedpreferences.getString(KeyPassword, null);
+            String appKey = sharedpreferences.getString(KeyAppKey, null);
             if (!username.equals(null) && !password.equals(null)) {
                 Intent mainActivityIntent = new Intent(this, MainActivity.class);
-                //mainActivityIntent.putExtra("user_id", username);
+                mainActivityIntent.putExtra("user_id", appKey);
                 startActivity(mainActivityIntent);
             }
         }

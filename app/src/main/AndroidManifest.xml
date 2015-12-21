@@ -36,6 +36,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".EditCreateListPOI"
+            android:label="@string/title_activity_edit_create_list_poi"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.zlatan.track.MainActivity" />
+        </activity>
+        <activity
+            android:name=".AddPOI"
+            android:label="@string/title_activity_add_poi"
+            android:parentActivityName=".EditCreateListPOI"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.zlatan.track.EditCreateListPOI" />
+        </activity>
     </application>
 
 </manifest>

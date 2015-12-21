@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private MapView mapView = null;
+    private String session_key = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +63,14 @@ public class MainActivity extends AppCompatActivity
 
         Intent intent = getIntent();
         if(intent.hasExtra("user_id")) {
-                Context context = getApplicationContext();
-                CharSequence text = intent.getStringExtra("user_id");
-                int duration = Toast.LENGTH_SHORT;
+            session_key = intent.getStringExtra("user_id");
+            Context context = getApplicationContext();
+            CharSequence text = intent.getStringExtra("user_id");
+            int duration = Toast.LENGTH_SHORT;
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.setGravity(Gravity.BOTTOM, 0, 10);
-                toast.show();
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.setGravity(Gravity.BOTTOM, 0, 10);
+            toast.show();
         }
 
     }
@@ -105,6 +107,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
     static final int PICK_POI_REQUEST = 1;
+    static final int EDIT_POI_REQUEST = 2;
     static final int SEND_COMMAND_REQUEST = 2;
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -116,7 +119,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_poilist) {
 
             Intent pickPoiIntent = new Intent(this, POIList.class);
+            pickPoiIntent.putExtra("session_key", session_key);
             startActivityForResult(pickPoiIntent, PICK_POI_REQUEST);
+        }
+        else if(id == R.id.nav_poi_edit_create) {
+            Intent pickPoiIntent = new Intent(this, EditCreateListPOI.class);
+            startActivityForResult(pickPoiIntent, EDIT_POI_REQUEST);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
