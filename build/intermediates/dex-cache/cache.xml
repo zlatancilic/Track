@@ -2,6 +2,13 @@
 <items version="2" >
 
     <item
+        jar="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="3f151e49c316a5ab2c065969a3b3b55ef9b393fc">
+        <dex dex="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/pre-dexed/debug/classes-0f20958556aa9c04f1c560abe213c42de4022f60.jar" />
+    </item>
+    <item
         jar="/Users/zlatan/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp/okhttp/2.5.0/4de2b4ed3445c37ec1720a7d214712e845a24636/okhttp-2.5.0.jar"
         jumboMode="false"
         revision="22.0.1"
@@ -9,11 +16,25 @@
         <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/okhttp-2.5.0-e1e2bb3b58d704665cae79cba8efcb3bed8d0598.jar" />
     </item>
     <item
-        jar="/Users/zlatan/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.1.0/support-annotations-23.1.0.jar"
+        jar="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/classes.jar"
         jumboMode="false"
         revision="22.0.1"
-        sha1="92e3fc113ec3ee36b64603a38857b95700025633">
-        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/support-annotations-23.1.0-b2ab7e3a7bdf2434387c4c9eb2f62a28d3cbca2f.jar" />
+        sha1="ddde541c289c8b816a8f8fd6c325d80788c522a6">
+        <dex dex="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/pre-dexed/debug/classes-bb8c0ced3d3c5abe57b3325220e35050de668c23.jar" />
+    </item>
+    <item
+        jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="57ae0d750ff83f0c738d21720224ac7ea866a094">
+        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-f38a62b214e0583137d6c2699b9faff9b4738552.jar" />
+    </item>
+    <item
+        jar="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/exploded-aar/com.android.support/design/23.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="19026d31f5d3ae868db81319671a642be5fbba08">
+        <dex dex="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/pre-dexed/debug/classes-d1087ae3cc8bc8dc5bf6859c713ca2b94f7f17f5.jar" />
     </item>
     <item
         jar="/Users/zlatan/.gradle/caches/modules-2/files-2.1/com.mapzen.android/lost/1.0.1/5f807d0be6ca894f6ae0007e884099793b2c8633/lost-1.0.1.jar"
@@ -23,18 +44,39 @@
         <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/lost-1.0.1-cefd245a4d8f15826de40d2c25e634511dd2ff2e.jar" />
     </item>
     <item
-        jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.0/jars/classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="3f151e49c316a5ab2c065969a3b3b55ef9b393fc">
-        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-213997942d914c3c361ab62533ce7d55399f98b3.jar" />
-    </item>
-    <item
         jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.mapbox.mapboxsdk/mapbox-android-sdk/2.2.0/jars/classes.jar"
         jumboMode="false"
         revision="22.0.1"
         sha1="06d629f89d1e0de27c659f94daf6f5e1512348f1">
         <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-5b0404154a0b6d43c2912fa5623b65ae6e68f072.jar" />
+    </item>
+    <item
+        jar="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/exploded-aar/com.mapbox.mapboxsdk/mapbox-android-sdk/2.2.0/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="06d629f89d1e0de27c659f94daf6f5e1512348f1">
+        <dex dex="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/pre-dexed/debug/classes-42f5b584c451bdecfe17eeda6f5284983459b038.jar" />
+    </item>
+    <item
+        jar="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/libs/internal_impl-23.1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="8716243bf04bae8d6c9ca94d27b9a9be7236f0a3">
+        <dex dex="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/pre-dexed/debug/internal_impl-23.1.0-3d7588aa04be00aafd5136bd3a623c5370675562.jar" />
+    </item>
+    <item
+        jar="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="57ae0d750ff83f0c738d21720224ac7ea866a094">
+        <dex dex="/Users/zlatan/Documents/vm_env/fax/Track/app/build/intermediates/pre-dexed/debug/classes-38e987591a1e37bb1df71fffb1f0b45b55e4402f.jar" />
+    </item>
+    <item
+        jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.0/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="3f151e49c316a5ab2c065969a3b3b55ef9b393fc">
+        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-213997942d914c3c361ab62533ce7d55399f98b3.jar" />
     </item>
     <item
         jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/libs/internal_impl-23.1.0.jar"
@@ -51,11 +93,11 @@
         <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-f70cd6b814a01e49055ab868c1286511347dd607.jar" />
     </item>
     <item
-        jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/classes.jar"
+        jar="/Users/zlatan/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.1.0/support-annotations-23.1.0.jar"
         jumboMode="false"
         revision="22.0.1"
-        sha1="ddde541c289c8b816a8f8fd6c325d80788c522a6">
-        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-10bcf0f85eaf85373db3f3b5a13b98fc3f7b5e5b.jar" />
+        sha1="92e3fc113ec3ee36b64603a38857b95700025633">
+        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/support-annotations-23.1.0-b2ab7e3a7bdf2434387c4c9eb2f62a28d3cbca2f.jar" />
     </item>
     <item
         jar="/Users/zlatan/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.6.0/98476622f10715998eacf9240d6b479f12c66143/okio-1.6.0.jar"
@@ -65,11 +107,11 @@
         <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/okio-1.6.0-4de72bb52a3f4d75704e7c77358026aff37e4c4a.jar" />
     </item>
     <item
-        jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.1.0/jars/classes.jar"
+        jar="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.1.0/jars/classes.jar"
         jumboMode="false"
         revision="22.0.1"
-        sha1="57ae0d750ff83f0c738d21720224ac7ea866a094">
-        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-f38a62b214e0583137d6c2699b9faff9b4738552.jar" />
+        sha1="ddde541c289c8b816a8f8fd6c325d80788c522a6">
+        <dex dex="/Users/zlatan/Documents/AndroidCourse/Track/app/build/intermediates/pre-dexed/debug/classes-10bcf0f85eaf85373db3f3b5a13b98fc3f7b5e5b.jar" />
     </item>
 
 </items>

@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.zlatan.track.Objects.POI;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +41,7 @@ import java.util.List;
 
 public class POIList extends AppCompatActivity {
 
-    List<String> primjerListe = new ArrayList<String>();
+    List<POI> primjerListe = new ArrayList<POI>();
     String[] commandList = {"Close windows","Stop vehicle","Lock vehicle"};
     private String session_key = null;
     private final String LOG_TAG = POIList.class.getSimpleName();
@@ -56,8 +59,6 @@ public class POIList extends AppCompatActivity {
         if(getIntent().hasExtra("session_key")) {
             session_key = getIntent().getStringExtra("session_key");
         }
-
-        //primjerListe = new ArrayList<String>();
 
         ListView lw = (ListView) findViewById(R.id.poi_list);
         lw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -77,7 +78,8 @@ public class POIList extends AppCompatActivity {
                                     ContextMenu.ContextMenuInfo menuInfo) {
         if (v.getId()==R.id.poi_list) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-            menu.setHeaderTitle("Send command to " + primjerListe.get(info.position));
+            POI tempObject = primjerListe.get(info.position);
+            menu.setHeaderTitle("Send command to " + tempObject.getName());
             String[] menuItems = commandList;
             for (int i = 0; i<menuItems.length; i++) {
                 menu.add(Menu.NONE, i, i, menuItems[i]);
@@ -90,8 +92,10 @@ public class POIList extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)item.getMenuInfo();
         int menuItemIndex = item.getItemId();
 
+        POI tempObject = primjerListe.get(info.position);
+
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("poi_id", Integer.toString(info.position));
+        returnIntent.putExtra("poi_id", Integer.toString(tempObject.getId()));
         returnIntent.putExtra("command_id", Integer.toString(menuItemIndex));
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
@@ -100,15 +104,6 @@ public class POIList extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        /*primjerListe.add("Vozilo 1");
-        primjerListe.add("Vozilo 2");
-        primjerListe.add("Vozilo 3");
-        primjerListe.add("Vozilo 4");
-
-        ListView lw = (ListView) findViewById(R.id.poi_list);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, primjerListe);
-        lw.setAdapter(adapter);
-        registerForContextMenu(lw);*/
         FetchPOIListClass task = new FetchPOIListClass();
         String params[] = {session_key};
         task.execute(params);
@@ -116,9 +111,9 @@ public class POIList extends AppCompatActivity {
         super.onResume();
     }
 
-    public class FetchPOIListClass extends AsyncTask<String, Void, String[]> {
+    public class FetchPOIListClass extends AsyncTask<String, Void, POI[]> {
         @Override
-        protected String[] doInBackground(String... params) {
+        protected POI[] doInBackground(String... params) {
             HttpURLConnection apiConnection = null;
             BufferedReader responseBuffer = null;
             String apiResponse = null;
@@ -161,13 +156,17 @@ public class POIList extends AppCompatActivity {
                 try {
                     JSONObject responseJsonObject = new JSONObject(apiResponse);
                     JSONArray poiList = responseJsonObject.getJSONArray("point_of_interests");
-                    List<String> tempData = new ArrayList<String>();
+                    List<POI> tempData = new ArrayList<POI>();
                     for(int i = 0; i < poiList.length(); i++) {
                         JSONObject singlePoi = poiList.getJSONObject(i);
                         String singlePoiName = singlePoi.getString("name");
-                        tempData.add(singlePoiName);
+                        int singlePOIId = singlePoi.getInt("id");
+                        String singlePOIDescription = singlePoi.getString("description");
+                        String singlePOIDate = singlePoi.getString("date_added");
+                        POI tempObject = new POI(singlePOIId, singlePoiName, singlePOIDescription, singlePOIDate);
+                        tempData.add(tempObject);
                     }
-                    String[] data = new String[tempData.size()];
+                    POI[] data = new POI[tempData.size()];
                     tempData.toArray(data);
                     return data;
                 }
@@ -199,9 +198,9 @@ public class POIList extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(POI[] result) {
             if(result != null) {
-                List<String> tempList = new ArrayList<String>();
+                List<POI> tempList = new ArrayList<POI>();
                 for(int i = 0; i < result.length; i++) {
                     tempList.add(result[i]);
                 }
@@ -209,7 +208,7 @@ public class POIList extends AppCompatActivity {
                 primjerListe = tempList;
 
                 ListView lw = (ListView) findViewById(R.id.poi_list);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(POIList.this, android.R.layout.simple_list_item_1, tempList);
+                ArrayAdapter<POI> adapter = new ArrayAdapter<POI>(POIList.this, android.R.layout.simple_list_item_1, tempList);
                 lw.setAdapter(adapter);
                 registerForContextMenu(lw);
             }
@@ -224,5 +223,7 @@ public class POIList extends AppCompatActivity {
             }
         }
     }
+
+
 
 }

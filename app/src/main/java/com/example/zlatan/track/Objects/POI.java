@@ -9,18 +9,32 @@ import java.util.List;
 public class POI {
 
     String name;
-    String id;
-    List<String> activeCommands;
+    int id;
+    String description;
+    String date_added;
+    float latitude;
+    float longitude;
 
-    public POI(String poi_id, String poi_name) {
-        activeCommands = new ArrayList<String>();
+
+
+    public POI(int poi_id, String poi_name, String poi_description, String poi_date_added) {
         id = poi_id;
         name = poi_name;
+        description = poi_description;
+        date_added = poi_date_added;
     }
 
-    public void setCommand(String command) {
-        activeCommands.add(command);
+    public int getId() {
+        return id;
+    }
+
+    public String getName () {
+        return name;
     }
 
 
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }
