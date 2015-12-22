@@ -78,7 +78,10 @@ public class POIList extends AppCompatActivity {
                                     ContextMenu.ContextMenuInfo menuInfo) {
         if (v.getId()==R.id.poi_list) {
             AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo)menuInfo;
-            POI tempObject = primjerListe.get(info.position);
+
+            ListView lv = (ListView) v;
+            POI tempObject = (POI) lv.getItemAtPosition(info.position);
+
             menu.setHeaderTitle("Send command to " + tempObject.getName());
             String[] menuItems = commandList;
             for (int i = 0; i<menuItems.length; i++) {

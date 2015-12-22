@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity
         }
         else if(id == R.id.nav_poi_edit_create) {
             Intent pickPoiIntent = new Intent(this, EditCreateListPOI.class);
+            pickPoiIntent.putExtra("session_key", session_key);
             startActivityForResult(pickPoiIntent, EDIT_POI_REQUEST);
         }
 
