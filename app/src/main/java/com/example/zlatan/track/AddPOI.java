@@ -3,6 +3,7 @@ package com.example.zlatan.track;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.zlatan.track.Objects.POI;
@@ -32,14 +34,26 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class AddPOI extends AppCompatActivity {
 
     List<String> poi_types_array;
     private final String LOG_TAG = AddPOI.class.getSimpleName();
     private String session_key = null;
+    SharedPreferences sharedpreferences;
+    String fetched_poi_name = "";
+    String fetched_poi_description = "";
+    double fetched_poi_lat = 0.0;
+    double fetched_poi_long = 0.0;
+    int fetched_company_id = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +63,9 @@ public class AddPOI extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+/*
         poi_types_array = new ArrayList<String>();
         poi_types_array.add("Vehicle");
         poi_types_array.add("Cellphone");
@@ -64,17 +79,21 @@ public class AddPOI extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setPrompt("Select Type");
+*/
 
-        if(getIntent().hasExtra("session_key")) {
-            session_key = getIntent().getStringExtra("session_key");
-        }
 
         Button fab = (Button) findViewById(R.id.create_button);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                TextView poi_name_tw = (TextView) findViewById(R.id.poi_name);
+                TextView poi_desc_tw = (TextView) findViewById(R.id.poi_description);
+
+                fetched_poi_name = poi_name_tw.getText().toString();
+                fetched_poi_description = poi_desc_tw.getText().toString();
+
                 AddPOIClass task = new AddPOIClass();
-                String params[] = {session_key};
+                String params[] = {};
                 task.execute(params);
             }
         });
@@ -86,7 +105,15 @@ public class AddPOI extends AppCompatActivity {
             HttpURLConnection apiConnection = null;
             BufferedReader responseBuffer = null;
             String apiResponse = null;
-            String local_session_key = params[0];
+
+
+            sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+
+            if(local_session_key == null) {
+                POI toReturn[] = null;
+                return toReturn;
+            }
 
             final String BASE_URL = "tracking-service-api.herokuapp.com";
             final String ADDED_PATH = "v1/poi";
@@ -106,13 +133,26 @@ public class AddPOI extends AppCompatActivity {
                 apiConnection.setDoOutput(true);
                 apiConnection.setDoInput(true);
 
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                Date today = Calendar.getInstance().getTime();
+                String fetched_date = df.format(today);
+
+                double max_lat = 50.00;
+                double min_lat = 45.70;
+                double max_long = 22.00;
+                double min_long = 2.00;
+
+                Random r = new Random();
+                fetched_poi_lat = min_lat + (max_lat - min_lat) * r.nextDouble();
+                fetched_poi_long = min_long + (max_long - min_long) * r.nextDouble();
+
                 JSONObject poi_json = new JSONObject();
-                poi_json.put("name", "facebook_login");
-                poi_json.put("description", "facebook_login");
-                poi_json.put("date_added", null);
-                poi_json.put("lat", 44.2014);
-                poi_json.put("lng", 17.9064);
-                poi_json.put("company_id", 3);
+                poi_json.put("name", fetched_poi_name);
+                poi_json.put("description", fetched_poi_description);
+                poi_json.put("date_added", fetched_date);
+                poi_json.put("lat", fetched_poi_lat);
+                poi_json.put("lng", fetched_poi_long);
+                poi_json.put("company_id", fetched_company_id);
 
                 JSONObject main_json = new JSONObject();
                 main_json.put("point_of_interest", poi_json);

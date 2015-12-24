@@ -54,6 +54,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.zlatan.track.EditCreateListPOI" />
         </activity>
+        <activity
+            android:name=".EditDeletePOI"
+            android:label="@string/title_activity_edit_delete_poi"
+            android:parentActivityName=".EditCreateListPOI"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.zlatan.track.EditCreateListPOI" />
+        </activity>
     </application>
 
 </manifest>

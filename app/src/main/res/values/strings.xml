@@ -11,4 +11,5 @@
     <string name="title_activity_poicommand_list">POICommandList</string>
     <string name="title_activity_edit_create_list_poi">EditCreateListPOI</string>
     <string name="title_activity_add_poi">AddPOI</string>
+    <string name="title_activity_edit_delete_poi">EditDeletePOI</string>
 </resources>

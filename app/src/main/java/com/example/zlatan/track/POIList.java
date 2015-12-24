@@ -45,6 +45,7 @@ public class POIList extends AppCompatActivity {
     String[] commandList = {"Close windows","Stop vehicle","Lock vehicle"};
     private String session_key = null;
     private final String LOG_TAG = POIList.class.getSimpleName();
+    SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +109,7 @@ public class POIList extends AppCompatActivity {
     @Override
     public void onResume() {
         FetchPOIListClass task = new FetchPOIListClass();
-        String params[] = {session_key};
+        String params[] = {};
         task.execute(params);
 
         super.onResume();
@@ -120,7 +121,15 @@ public class POIList extends AppCompatActivity {
             HttpURLConnection apiConnection = null;
             BufferedReader responseBuffer = null;
             String apiResponse = null;
-            String local_session_key = params[0];
+
+
+            sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+
+            if(local_session_key == null) {
+                POI toReturn[] = null;
+                return toReturn;
+            }
 
             final String BASE_URL = "tracking-service-api.herokuapp.com";
             final String ADDED_PATH = "v1/poi";
@@ -158,7 +167,7 @@ public class POIList extends AppCompatActivity {
                 apiResponse = stringBuffer.toString();
                 try {
                     JSONObject responseJsonObject = new JSONObject(apiResponse);
-                    JSONArray poiList = responseJsonObject.getJSONArray("point_of_interests");
+                    JSONArray poiList = responseJsonObject.getJSONArray("pois");
                     List<POI> tempData = new ArrayList<POI>();
                     for(int i = 0; i < poiList.length(); i++) {
                         JSONObject singlePoi = poiList.getJSONObject(i);

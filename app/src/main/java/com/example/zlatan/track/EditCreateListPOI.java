@@ -3,6 +3,7 @@ package com.example.zlatan.track;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class EditCreateListPOI extends AppCompatActivity {
     static final int ADD_POI_REQUEST = 5;
     private final String LOG_TAG = EditCreateListPOI.class.getSimpleName();
     private String session_key = null;
+    SharedPreferences sharedpreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +54,14 @@ public class EditCreateListPOI extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent pickPoiIntent = new Intent(getApplicationContext(), AddPOI.class);
-                pickPoiIntent.putExtra("session_key", session_key);
-                startActivityForResult(pickPoiIntent, ADD_POI_REQUEST);
+                Intent addPoiIntent = new Intent(getApplicationContext(), AddPOI.class);
+                //pickPoiIntent.putExtra("session_key", session_key);
+                startActivityForResult(addPoiIntent, ADD_POI_REQUEST);
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if(getIntent().hasExtra("session_key")) {
-            session_key = getIntent().getStringExtra("session_key");
-        }
+
 
         /*primjerListe.add("Vozilo 1");
         primjerListe.add("Vozilo 2");
@@ -75,10 +75,10 @@ public class EditCreateListPOI extends AppCompatActivity {
         lw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("poi_id", Integer.toString(position));
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
+                POI clicked_poi = (POI) parent.getItemAtPosition(position);
+                Intent editPoiIntent = new Intent(getApplicationContext(), EditDeletePOI.class);
+                editPoiIntent.putExtra("poi_id", clicked_poi.getId());
+                startActivityForResult(editPoiIntent, ADD_POI_REQUEST);
             }
         });
     }
@@ -93,7 +93,7 @@ public class EditCreateListPOI extends AppCompatActivity {
                     String poiId = data.getStringExtra("poi_id");
                     Context context = getApplicationContext();
                     //String name = data.getStringExtra("poi_id");
-                    CharSequence text = poiId;
+                    CharSequence text = "Added POI with ID " + poiId;
                     int duration = Toast.LENGTH_LONG;
 
                     Toast toast = Toast.makeText(context, text, duration);
@@ -106,7 +106,7 @@ public class EditCreateListPOI extends AppCompatActivity {
     @Override
     public void onResume() {
         FetchPOIListClass task = new FetchPOIListClass();
-        String params[] = {session_key};
+        String params[] = {};
         task.execute(params);
 
         super.onResume();
@@ -118,7 +118,14 @@ public class EditCreateListPOI extends AppCompatActivity {
             HttpURLConnection apiConnection = null;
             BufferedReader responseBuffer = null;
             String apiResponse = null;
-            String local_session_key = params[0];
+
+            sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+
+            if(local_session_key == null) {
+                POI toReturn[] = null;
+                return toReturn;
+            }
 
             final String BASE_URL = "tracking-service-api.herokuapp.com";
             final String ADDED_PATH = "v1/poi";

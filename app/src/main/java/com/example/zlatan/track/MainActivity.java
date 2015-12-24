@@ -60,19 +60,6 @@ public class MainActivity extends AppCompatActivity
         mapView.setCenterCoordinate(new LatLng(43.853258, 18.411144));
         mapView.setZoomLevel(10);
         mapView.onCreate(savedInstanceState);
-
-        Intent intent = getIntent();
-        if(intent.hasExtra("user_id")) {
-            session_key = intent.getStringExtra("user_id");
-            Context context = getApplicationContext();
-            CharSequence text = intent.getStringExtra("user_id");
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.setGravity(Gravity.BOTTOM, 0, 10);
-            toast.show();
-        }
-
     }
 
     @Override
@@ -119,12 +106,12 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_poilist) {
 
             Intent pickPoiIntent = new Intent(this, POIList.class);
-            pickPoiIntent.putExtra("session_key", session_key);
+            //pickPoiIntent.putExtra("session_key", session_key);
             startActivityForResult(pickPoiIntent, PICK_POI_REQUEST);
         }
         else if(id == R.id.nav_poi_edit_create) {
             Intent pickPoiIntent = new Intent(this, EditCreateListPOI.class);
-            pickPoiIntent.putExtra("session_key", session_key);
+            //pickPoiIntent.putExtra("session_key", session_key);
             startActivityForResult(pickPoiIntent, EDIT_POI_REQUEST);
         }
 

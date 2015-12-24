@@ -20,7 +20,7 @@
         android:id="@+id/footer_edit_create"
         android:layout_width="fill_parent"
         android:layout_height="30dip"
-        android:text="Tap to edit"
+        android:text="Tap to edit/delete"
         android:textSize="14sp"
         android:padding="4dip"
         android:textAlignment="center" />

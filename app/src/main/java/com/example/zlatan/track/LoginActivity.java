@@ -161,7 +161,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.commit();
 
                 Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
-                mainActivityIntent.putExtra("user_id", result);
+                //mainActivityIntent.putExtra("user_id", result);
                 startActivity(mainActivityIntent);
             }
             else {
