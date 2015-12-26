@@ -65,8 +65,9 @@ public class POIList extends AppCompatActivity {
         lw.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                POI clicked_poi = (POI) parent.getItemAtPosition(position);
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("poi_id",Integer.toString(position));
+                returnIntent.putExtra("poi_id",Integer.toString(clicked_poi.getId()));
                 setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }

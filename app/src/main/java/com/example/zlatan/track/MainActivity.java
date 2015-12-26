@@ -1,9 +1,13 @@
 package com.example.zlatan.track;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
@@ -19,13 +23,39 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.zlatan.track.Objects.POI;
+import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.views.MapView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    SharedPreferences sharedpreferences;
+    int activeTrackingPOIID;
+    MarkerOptions currentMarker = null;
+    boolean trackingActive = false;
 
     private MapView mapView = null;
     private String session_key = null;
@@ -37,12 +67,15 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_main);
+        fab.setVisibility(View.INVISIBLE);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                trackingActive = false;
+                StopTrackingPOIClass task = new StopTrackingPOIClass();
+                String params[] = {Integer.toString(activeTrackingPOIID)};
+                task.execute(params);
             }
         });
 
@@ -106,12 +139,10 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_poilist) {
 
             Intent pickPoiIntent = new Intent(this, POIList.class);
-            //pickPoiIntent.putExtra("session_key", session_key);
             startActivityForResult(pickPoiIntent, PICK_POI_REQUEST);
         }
         else if(id == R.id.nav_poi_edit_create) {
             Intent pickPoiIntent = new Intent(this, EditCreateListPOI.class);
-            //pickPoiIntent.putExtra("session_key", session_key);
             startActivityForResult(pickPoiIntent, EDIT_POI_REQUEST);
         }
 
@@ -122,9 +153,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
         if (requestCode == PICK_POI_REQUEST) {
-            // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 if(data.hasExtra("command_id")) {
                     String poiId = data.getStringExtra("poi_id");
@@ -139,38 +168,10 @@ public class MainActivity extends AppCompatActivity
                 }
                 else {
                     String dataMessage = data.getStringExtra("poi_id");
-                    int poi_id = Integer.parseInt(dataMessage);
-                    LatLng latLong = null;
-                    switch (poi_id) {
-                        default:
-                        case 0:
-                            latLong = new LatLng(43.856848, 18.397802);
-                            break;
-                        case 1:
-                            latLong = new LatLng(43.862588, 18.427006);
-                            break;
-                        case 2:
-                            latLong = new LatLng(43.858539, 18.416604);
-                            break;
-                        case 3:
-                            latLong = new LatLng(43.846966, 18.374190);
-                            break;
-                    }
-
-                    if (mapView != null) {
-                        if (latLong != null) {
-                            mapView.setCenterCoordinate(latLong);
-                            mapView.setZoomLevel(15);
-                            mapView.addMarker(new MarkerOptions()
-                                    .position(latLong)
-                                    .title("Vozilo" + dataMessage)
-                                    .snippet("Vozilo" + dataMessage));
-                        } else {
-                            Log.d("MissingValues", "Variable latLong is null");
-                        }
-                    } else {
-                        Log.d("MissingValues", "Variable mapView is null");
-                    }
+                    activeTrackingPOIID = Integer.parseInt(dataMessage);
+                    StartTrackingPOIClass task = new StartTrackingPOIClass();
+                    String params[] = {dataMessage};
+                    task.execute(params);
                 }
 
 
@@ -212,5 +213,296 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
+    }
+
+    public class StartTrackingPOIClass extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection apiConnection = null;
+            BufferedReader responseBuffer = null;
+            String apiResponse = null;
+
+
+            sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+
+            if(local_session_key == null) {
+                return null;
+            }
+
+            final String BASE_URL = "tracking-service-api.herokuapp.com";
+            final String ADDED_PATH = "v1/poi/" + params[0] + "/start_tracking";
+
+            try {
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("https")
+                        .authority(BASE_URL)
+                        .appendEncodedPath(ADDED_PATH);
+                String myUrl = builder.build().toString();
+
+                URL url = new URL(myUrl);
+                apiConnection = (HttpURLConnection) url.openConnection();
+                apiConnection.setRequestMethod("POST");
+                apiConnection.setRequestProperty("Authorization", "Token token=" + local_session_key);
+
+                apiConnection.connect();
+
+                int responseCode = apiConnection.getResponseCode();
+                if(responseCode == 204)
+                    return "OK";
+
+                return null;
+            }
+            catch (IOException ex) {
+                Log.e(LOG_TAG, "Error", ex);
+                return null;
+            }
+            finally {
+                if(apiConnection != null) {
+                    apiConnection.disconnect();
+                }
+                if(responseBuffer != null) {
+                    try {
+                        responseBuffer.close();
+                    }
+                    catch (final IOException exc) {
+                        Log.e(LOG_TAG, "Error closing stream", exc);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if(result == null) {
+                Context context = getApplicationContext();
+                CharSequence text = "Something went wrong";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.setGravity(Gravity.BOTTOM, 0, 10);
+                toast.show();
+            }
+            else if(result.equals("OK")) {
+                trackingActive = true;
+                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_main);
+                fab.setVisibility(View.VISIBLE);
+                TrackPOIClass task = new TrackPOIClass();
+                String params[] = {};
+                task.execute(params);
+            }
+        }
+    }
+
+    public class TrackPOIClass extends AsyncTask<String, Void, POI[]> {
+        @Override
+        protected POI[] doInBackground(String... params) {
+            HttpURLConnection apiConnection = null;
+            BufferedReader responseBuffer = null;
+            String apiResponse = null;
+
+
+            sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+
+            if(local_session_key == null) {
+                POI toReturn[] = null;
+                return toReturn;
+            }
+
+            final String BASE_URL = "tracking-service-api.herokuapp.com";
+            final String ADDED_PATH = "v1/poi/" + Integer.toString(activeTrackingPOIID) + "/track";
+
+            try {
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("https")
+                        .authority(BASE_URL)
+                        .appendEncodedPath(ADDED_PATH);
+                String myUrl = builder.build().toString();
+
+                URL url = new URL(myUrl);
+                apiConnection = (HttpURLConnection) url.openConnection();
+                apiConnection.setRequestMethod("POST");
+                apiConnection.setRequestProperty("Authorization", "Token token=" + local_session_key);
+
+                apiConnection.connect();
+
+                InputStream inputStream = apiConnection.getInputStream();
+                StringBuffer stringBuffer = new StringBuffer();
+                if (inputStream == null) {
+                    return null;
+                }
+
+                responseBuffer = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while((line = responseBuffer.readLine()) != null) {
+                    stringBuffer.append(line + "\n");
+                }
+
+                if(stringBuffer.length() == 0) {
+                    return null;
+                }
+
+                apiResponse = stringBuffer.toString();
+                try {
+                    JSONObject responseJsonObject = new JSONObject(apiResponse);
+                    JSONObject singlePoi = responseJsonObject.getJSONObject("poi");
+                    List<POI> tempData = new ArrayList<POI>();
+                    String singlePoiName = singlePoi.getString("name");
+                    int singlePOIId = singlePoi.getInt("id");
+                    String singlePOIDescription = singlePoi.getString("description");
+                    String singlePOIDate = singlePoi.getString("date_added");
+                    float singlePOILat = (float) singlePoi.getDouble("lat");
+                    float singlePOILon = (float) singlePoi.getDouble("lng");
+                    int singlePOICompanyId = singlePoi.getInt("company_id");
+                    POI tempObject = new POI(singlePOIId, singlePoiName, singlePOIDescription, singlePOIDate, singlePOILat, singlePOILon, singlePOICompanyId);
+                    tempData.add(tempObject);
+                    POI[] data = new POI[tempData.size()];
+                    tempData.toArray(data);
+                    return data;
+                }
+                catch(JSONException je) {
+                    Log.e(LOG_TAG, "JSON Error", je);
+                }
+
+
+            }
+            catch (IOException ex) {
+                Log.e(LOG_TAG, "Error", ex);
+                return null;
+            }
+            finally {
+                if(apiConnection != null) {
+                    apiConnection.disconnect();
+                }
+                if(responseBuffer != null) {
+                    try {
+                        responseBuffer.close();
+                    }
+                    catch (final IOException exc) {
+                        Log.e(LOG_TAG, "Error closing stream", exc);
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(POI[] result) {
+            if(trackingActive) {
+                if (result != null) {
+                    if (result.length == 1) {
+                        LatLng latLong = new LatLng(result[0].getLatitude(), result[0].getLongitude());
+                        if (mapView != null) {
+                            if (latLong != null) {
+                                if (currentMarker != null) {
+                                    mapView.removeMarker(currentMarker.getMarker());
+                                }
+                                mapView.setCenterCoordinate(latLong);
+                                mapView.setZoomLevel(15);
+                                currentMarker = new MarkerOptions().position(latLong).title("Vozilo" + result[0].getName()).snippet(result[0].getDescription());
+                                mapView.addMarker(currentMarker);
+                                new Handler().postDelayed(new Runnable() {
+                                    public void run() {
+                                        TrackPOIClass task = new TrackPOIClass();
+                                        String params[] = {};
+                                        task.execute(params);
+                                    }
+                                }, 1000);
+                            } else {
+                                Log.d("MissingValues", "Variable latLong is null");
+                            }
+                        } else {
+                            Log.d("MissingValues", "Variable mapView is null");
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    public class StopTrackingPOIClass extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection apiConnection = null;
+            BufferedReader responseBuffer = null;
+            String apiResponse = null;
+
+
+            sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
+            String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+
+            if(local_session_key == null) {
+                return null;
+            }
+
+            final String BASE_URL = "tracking-service-api.herokuapp.com";
+            final String ADDED_PATH = "v1/poi/" + params[0] + "/stop_tracking";
+
+            try {
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("https")
+                        .authority(BASE_URL)
+                        .appendEncodedPath(ADDED_PATH);
+                String myUrl = builder.build().toString();
+
+                URL url = new URL(myUrl);
+                apiConnection = (HttpURLConnection) url.openConnection();
+                apiConnection.setRequestMethod("POST");
+                apiConnection.setRequestProperty("Authorization", "Token token=" + local_session_key);
+
+                apiConnection.connect();
+
+                int responseCode = apiConnection.getResponseCode();
+                if(responseCode == 204)
+                    return "OK";
+
+                return null;
+            }
+            catch (IOException ex) {
+                Log.e(LOG_TAG, "Error", ex);
+                return null;
+            }
+            finally {
+                if(apiConnection != null) {
+                    apiConnection.disconnect();
+                }
+                if(responseBuffer != null) {
+                    try {
+                        responseBuffer.close();
+                    }
+                    catch (final IOException exc) {
+                        Log.e(LOG_TAG, "Error closing stream", exc);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if(result == null) {
+                Context context = getApplicationContext();
+                CharSequence text = "Something went wrong";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.setGravity(Gravity.BOTTOM, 0, 10);
+                toast.show();
+            }
+            else if(result.equals("OK")) {
+                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_main);
+                fab.setVisibility(View.INVISIBLE);
+                Context context = getApplicationContext();
+                CharSequence text = "Tracking stopped";
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.setGravity(Gravity.BOTTOM, 0, 10);
+                toast.show();
+            }
+        }
     }
 }
