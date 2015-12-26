@@ -92,6 +92,7 @@ public class EditDeletePOI extends AppCompatActivity {
                 EditPOIClass task = new EditPOIClass();
                 String params[] = {};
                 task.execute(params);
+
             }
         });
 

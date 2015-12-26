@@ -66,13 +66,13 @@
       <file leaf-file-name="EditDeletePOI.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/zlatan/track/EditDeletePOI.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5183585">
-              <caret line="92" column="37" selection-start-line="92" selection-start-column="37" selection-end-line="92" selection-end-column="37" />
+            <state vertical-scroll-proportion="0.5507559">
+              <caret line="93" column="37" selection-start-line="93" selection-start-column="37" selection-end-line="93" selection-end-column="37" />
               <folding>
                 <element signature="e#2483#2738#0" expanded="true" />
                 <element signature="e#2737#2738#0" expanded="true" />
-                <element signature="e#2841#3410#0" expanded="true" />
-                <element signature="e#3409#3410#0" expanded="true" />
+                <element signature="e#2841#3411#0" expanded="true" />
+                <element signature="e#3410#3411#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -1993,7 +1993,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Android Monitor" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.316156" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.316156" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3297336" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -2086,8 +2086,8 @@
           <folding>
             <element signature="e#2483#2738#0" expanded="true" />
             <element signature="e#2737#2738#0" expanded="true" />
-            <element signature="e#2841#3410#0" expanded="true" />
-            <element signature="e#3409#3410#0" expanded="true" />
+            <element signature="e#2841#3411#0" expanded="true" />
+            <element signature="e#3410#3411#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2521,13 +2521,13 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/zlatan/track/EditDeletePOI.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5183585">
-          <caret line="92" column="37" selection-start-line="92" selection-start-column="37" selection-end-line="92" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.5507559">
+          <caret line="93" column="37" selection-start-line="93" selection-start-column="37" selection-end-line="93" selection-end-column="37" />
           <folding>
             <element signature="e#2483#2738#0" expanded="true" />
             <element signature="e#2737#2738#0" expanded="true" />
-            <element signature="e#2841#3410#0" expanded="true" />
-            <element signature="e#3409#3410#0" expanded="true" />
+            <element signature="e#2841#3411#0" expanded="true" />
+            <element signature="e#3410#3411#0" expanded="true" />
           </folding>
         </state>
       </provider>
