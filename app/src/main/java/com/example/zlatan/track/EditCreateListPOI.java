@@ -38,6 +38,7 @@ public class EditCreateListPOI extends AppCompatActivity {
 
     List<String> primjerListe = new ArrayList<String>();
     static final int ADD_POI_REQUEST = 5;
+    static final int EDIT_DELETE_POI_REQUEST = 6;
     private final String LOG_TAG = EditCreateListPOI.class.getSimpleName();
     private String session_key = null;
     SharedPreferences sharedpreferences;
@@ -77,23 +78,34 @@ public class EditCreateListPOI extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 POI clicked_poi = (POI) parent.getItemAtPosition(position);
                 Intent editPoiIntent = new Intent(getApplicationContext(), EditDeletePOI.class);
-                editPoiIntent.putExtra("poi_id", clicked_poi.getId());
-                startActivityForResult(editPoiIntent, ADD_POI_REQUEST);
+                editPoiIntent.putExtra("poi", clicked_poi);
+                startActivityForResult(editPoiIntent, EDIT_DELETE_POI_REQUEST);
             }
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
         if (requestCode == ADD_POI_REQUEST) {
-            // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 if(data.hasExtra("poi_id")) {
                     String poiId = data.getStringExtra("poi_id");
                     Context context = getApplicationContext();
                     //String name = data.getStringExtra("poi_id");
                     CharSequence text = "Added POI with ID " + poiId;
+                    int duration = Toast.LENGTH_LONG;
+
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.show();
+                }
+            }
+        }
+        else if(requestCode == EDIT_DELETE_POI_REQUEST) {
+            if(resultCode == RESULT_OK) {
+                if(data.hasExtra("result")) {
+                    String result = data.getStringExtra("result");
+                    Context context = getApplicationContext();
+                    CharSequence text = result;
                     int duration = Toast.LENGTH_LONG;
 
                     Toast toast = Toast.makeText(context, text, duration);
@@ -171,7 +183,10 @@ public class EditCreateListPOI extends AppCompatActivity {
                         int singlePOIId = singlePoi.getInt("id");
                         String singlePOIDescription = singlePoi.getString("description");
                         String singlePOIDate = singlePoi.getString("date_added");
-                        POI tempObject = new POI(singlePOIId, singlePoiName, singlePOIDescription, singlePOIDate);
+                        float singlePOILat = (float) singlePoi.getDouble("lat");
+                        float singlePOILon = (float) singlePoi.getDouble("lng");
+                        int singlePOICompanyId = singlePoi.getInt("company_id");
+                        POI tempObject = new POI(singlePOIId, singlePoiName, singlePOIDescription, singlePOIDate, singlePOILat, singlePOILon, singlePOICompanyId);
                         tempData.add(tempObject);
                     }
                     POI[] data = new POI[tempData.size()];
