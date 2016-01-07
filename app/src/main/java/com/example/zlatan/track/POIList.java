@@ -46,6 +46,7 @@ public class POIList extends AppCompatActivity {
     private String session_key = null;
     private final String LOG_TAG = POIList.class.getSimpleName();
     SharedPreferences sharedpreferences;
+    boolean expiredKey = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class POIList extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        expiredKey = false;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if(getIntent().hasExtra("session_key")) {
@@ -109,6 +110,7 @@ public class POIList extends AppCompatActivity {
 
     @Override
     public void onResume() {
+        expiredKey = false;
         FetchPOIListClass task = new FetchPOIListClass();
         String params[] = {};
         task.execute(params);
@@ -147,8 +149,15 @@ public class POIList extends AppCompatActivity {
                 apiConnection.setRequestMethod("GET");
                 apiConnection.setRequestProperty("Authorization", "Token token=" + local_session_key);
                 apiConnection.connect();
+                InputStream inputStream;
+                int responseCode = apiConnection.getResponseCode();
+                if (responseCode == 401) {
+                    inputStream = apiConnection.getErrorStream();
+                }
+                else {
+                    inputStream = apiConnection.getInputStream();
+                }
 
-                InputStream inputStream = apiConnection.getInputStream();
                 StringBuffer stringBuffer = new StringBuffer();
                 if (inputStream == null) {
                     return null;
@@ -168,6 +177,13 @@ public class POIList extends AppCompatActivity {
                 apiResponse = stringBuffer.toString();
                 try {
                     JSONObject responseJsonObject = new JSONObject(apiResponse);
+                    if(responseJsonObject.has("error")) {
+                        String message = responseJsonObject.getString("error");
+                        if(message.equals("No authorization")) {
+                            expiredKey = true;
+                            return null;
+                        }
+                    }
                     JSONArray poiList = responseJsonObject.getJSONArray("pois");
                     List<POI> tempData = new ArrayList<POI>();
                     for(int i = 0; i < poiList.length(); i++) {
@@ -226,13 +242,22 @@ public class POIList extends AppCompatActivity {
                 registerForContextMenu(lw);
             }
             else {
-                Context context = getApplicationContext();
-                CharSequence text = "Something went wrong";
-                int duration = Toast.LENGTH_SHORT;
-
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.setGravity(Gravity.BOTTOM, 0, 10);
-                toast.show();
+                if(expiredKey) {
+                    RefreshSessionKey rfk = new RefreshSessionKey();
+                    String rfkParams[] = {};
+                    rfk.execute(rfkParams);
+                    FetchPOIListClass task = new FetchPOIListClass();
+                    String params[] = {};
+                    task.execute(params);
+                }
+                else {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Something went wrong";
+                    int duration = Toast.LENGTH_SHORT;
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.setGravity(Gravity.BOTTOM, 0, 10);
+                    toast.show();
+                }
             }
         }
     }

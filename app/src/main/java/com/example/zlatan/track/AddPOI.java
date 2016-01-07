@@ -53,7 +53,7 @@ public class AddPOI extends AppCompatActivity {
     String fetched_poi_description = "";
     double fetched_poi_lat = 0.0;
     double fetched_poi_long = 0.0;
-    int fetched_company_id = 5;
+    int fetched_company_id = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

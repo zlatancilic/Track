@@ -51,6 +51,8 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+
+    public static Context contextOfApplication;
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     SharedPreferences sharedpreferences;
     int activeTrackingPOIID;
@@ -60,12 +62,17 @@ public class MainActivity extends AppCompatActivity
     private MapView mapView = null;
     private String session_key = null;
 
+    public static Context getContextOfApplication(){
+        return contextOfApplication;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        contextOfApplication = getApplicationContext();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_main);
         fab.setVisibility(View.INVISIBLE);
