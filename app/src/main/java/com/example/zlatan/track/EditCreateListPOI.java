@@ -42,6 +42,7 @@ public class EditCreateListPOI extends AppCompatActivity {
     private final String LOG_TAG = EditCreateListPOI.class.getSimpleName();
     private String session_key = null;
     SharedPreferences sharedpreferences;
+    boolean expiredKey = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class EditCreateListPOI extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        expiredKey = false;
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +118,7 @@ public class EditCreateListPOI extends AppCompatActivity {
 
     @Override
     public void onResume() {
+        expiredKey = false;
         FetchPOIListClass task = new FetchPOIListClass();
         String params[] = {};
         task.execute(params);
@@ -155,7 +157,14 @@ public class EditCreateListPOI extends AppCompatActivity {
                 apiConnection.setRequestProperty("Authorization", "Token token=" + local_session_key);
                 apiConnection.connect();
 
-                InputStream inputStream = apiConnection.getInputStream();
+                InputStream inputStream;
+                int responseCode = apiConnection.getResponseCode();
+                if (responseCode == 401) {
+                    inputStream = apiConnection.getErrorStream();
+                }
+                else {
+                    inputStream = apiConnection.getInputStream();
+                }
                 StringBuffer stringBuffer = new StringBuffer();
                 if (inputStream == null) {
                     return null;
@@ -175,6 +184,13 @@ public class EditCreateListPOI extends AppCompatActivity {
                 apiResponse = stringBuffer.toString();
                 try {
                     JSONObject responseJsonObject = new JSONObject(apiResponse);
+                    if(responseJsonObject.has("error")) {
+                        String message = responseJsonObject.getString("error");
+                        if(message.equals("No authorization")) {
+                            expiredKey = true;
+                            return null;
+                        }
+                    }
                     JSONArray poiList = responseJsonObject.getJSONArray("pois");
                     List<POI> tempData = new ArrayList<POI>();
                     for(int i = 0; i < poiList.length(); i++) {
@@ -234,13 +250,23 @@ public class EditCreateListPOI extends AppCompatActivity {
                 registerForContextMenu(lw);
             }
             else {
-                Context context = getApplicationContext();
-                CharSequence text = "Something went wrong";
-                int duration = Toast.LENGTH_SHORT;
+                if(expiredKey) {
+                    RefreshSessionKey rfk = new RefreshSessionKey();
+                    String rfkParams[] = {};
+                    rfk.execute(rfkParams);
+                    FetchPOIListClass task = new FetchPOIListClass();
+                    String params[] = {};
+                    task.execute(params);
+                }
+                else {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Something went wrong";
+                    int duration = Toast.LENGTH_SHORT;
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.setGravity(Gravity.BOTTOM, 0, 10);
-                toast.show();
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.setGravity(Gravity.BOTTOM, 0, 10);
+                    toast.show();
+                }
             }
         }
     }

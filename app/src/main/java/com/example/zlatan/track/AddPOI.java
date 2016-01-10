@@ -54,6 +54,7 @@ public class AddPOI extends AppCompatActivity {
     double fetched_poi_lat = 0.0;
     double fetched_poi_long = 0.0;
     int fetched_company_id = 1;
+    boolean expiredKey = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,7 @@ public class AddPOI extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-
+        expiredKey = false;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 /*
         poi_types_array = new ArrayList<String>();
@@ -99,6 +100,12 @@ public class AddPOI extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        expiredKey = false;
+        super.onResume();
+    }
+
     public class AddPOIClass extends AsyncTask<String, Void, POI[]> {
         @Override
         protected POI[] doInBackground(String... params) {
@@ -109,6 +116,7 @@ public class AddPOI extends AppCompatActivity {
 
             sharedpreferences = getSharedPreferences(LoginActivity.MyPREFERENCES, Context.MODE_PRIVATE);
             String local_session_key = sharedpreferences.getString(LoginActivity.KeyAppKey, null);
+            fetched_company_id = sharedpreferences.getInt(LoginActivity.KeyComapnyId, 0);
 
             if(local_session_key == null) {
                 POI toReturn[] = null;
@@ -165,7 +173,14 @@ public class AddPOI extends AppCompatActivity {
 
                 apiConnection.connect();
 
-                InputStream inputStream = apiConnection.getInputStream();
+                InputStream inputStream;
+                int responseCode = apiConnection.getResponseCode();
+                if (responseCode == 401) {
+                    inputStream = apiConnection.getErrorStream();
+                }
+                else {
+                    inputStream = apiConnection.getInputStream();
+                }
                 StringBuffer stringBuffer = new StringBuffer();
                 if (inputStream == null) {
                     return null;
@@ -185,6 +200,13 @@ public class AddPOI extends AppCompatActivity {
                 apiResponse = stringBuffer.toString();
                 try {
                     JSONObject responseJsonObject = new JSONObject(apiResponse);
+                    if(responseJsonObject.has("error")) {
+                        String message = responseJsonObject.getString("error");
+                        if(message.equals("No authorization")) {
+                            expiredKey = true;
+                            return null;
+                        }
+                    }
                     JSONObject singlePoi = responseJsonObject.getJSONObject("point_of_interest");
                     List<POI> tempData = new ArrayList<POI>();
                     String singlePoiName = singlePoi.getString("name");
@@ -229,10 +251,21 @@ public class AddPOI extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(POI[] result) {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("poi_id", Integer.toString(result[0].getId()));
-            setResult(Activity.RESULT_OK,returnIntent);
-            finish();
+            if(result == null && expiredKey) {
+                RefreshSessionKey rfk = new RefreshSessionKey();
+                String rfkParams[] = {};
+                rfk.execute(rfkParams);
+                AddPOIClass task = new AddPOIClass();
+                String params[] = {};
+                task.execute(params);
+            }
+            else {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("poi_id", Integer.toString(result[0].getId()));
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+
         }
     }
 

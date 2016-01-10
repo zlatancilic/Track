@@ -32,6 +32,7 @@ public class RefreshSessionKey extends AsyncTask<String, Void, String> {
     public static final String KeyPassword = "passwordTestKey";
     SharedPreferences sharedpreferences;
     private final String LOG_TAG = RefreshSessionKey.class.getSimpleName();
+    int fetchedCompanyId;
 
     @Override
     protected String doInBackground(String... params) {
@@ -82,6 +83,7 @@ public class RefreshSessionKey extends AsyncTask<String, Void, String> {
                 JSONObject resposneJsonObject = new JSONObject(apiResponse);
                 JSONObject userData = resposneJsonObject.getJSONObject("user");
                 String key = userData.getString("session_key");
+                fetchedCompanyId = userData.getInt("company_id");
                 return key;
             }
             catch(JSONException je) {
@@ -115,7 +117,7 @@ public class RefreshSessionKey extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String result) {
         if(result != null) {
         SharedPreferences.Editor editor = sharedpreferences.edit();
-        editor.putString(KeyAppKey, result);
+        editor.putString(KeyAppKey, result);editor.putInt(LoginActivity.KeyComapnyId, fetchedCompanyId);
         editor.commit();
         }
     }

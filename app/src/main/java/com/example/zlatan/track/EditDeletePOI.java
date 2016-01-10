@@ -42,6 +42,7 @@ public class EditDeletePOI extends AppCompatActivity {
     private final String LOG_TAG = AddPOI.class.getSimpleName();
     SharedPreferences sharedpreferences;
     POI selectedPOI = null;
+    boolean expiredKey = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class EditDeletePOI extends AppCompatActivity {
         setContentView(R.layout.activity_edit_delete_poi);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        expiredKey = false;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent receiveIntent = getIntent();
@@ -99,6 +100,12 @@ public class EditDeletePOI extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onResume() {
+        expiredKey = false;
+        super.onResume();
+    }
+
     public class DeletePOIClass extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
@@ -133,7 +140,40 @@ public class EditDeletePOI extends AppCompatActivity {
                 int responseCode = apiConnection.getResponseCode();
                 if (responseCode == 204)
                     return "OK";
+                else if(responseCode == 401) {
+                    InputStream inputStream = apiConnection.getErrorStream();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
 
+                    responseBuffer = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while((line = responseBuffer.readLine()) != null) {
+                        stringBuffer.append(line + "\n");
+                    }
+
+                    if(stringBuffer.length() == 0) {
+                        return null;
+                    }
+
+                    apiResponse = stringBuffer.toString();
+                    try {
+                        JSONObject responseJsonObject = new JSONObject(apiResponse);
+                        if(responseJsonObject.has("error")) {
+                            String message = responseJsonObject.getString("error");
+                            if(message.equals("No authorization")) {
+                                expiredKey = true;
+                                return null;
+                            }
+                        }
+                    }
+                    catch(JSONException je) {
+                        Log.e(LOG_TAG, "JSON Error", je);
+                    }
+
+                }
                 return null;
             }
             catch (IOException ex) {
@@ -157,15 +197,25 @@ public class EditDeletePOI extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            Intent returnIntent = new Intent();
-            String extra = "";
-            if(result == null)
-                extra = "Error while trying to delete POI";
-            else if(result.equals("OK"))
-                extra = "POI successfully deleted";
-            returnIntent.putExtra("result", extra);
-            setResult(Activity.RESULT_OK,returnIntent);
-            finish();
+            if(expiredKey && result == null) {
+                RefreshSessionKey rfk = new RefreshSessionKey();
+                String rfkParams[] = {};
+                rfk.execute(rfkParams);
+                DeletePOIClass task = new DeletePOIClass();
+                String params[] = {};
+                task.execute(params);
+            }
+            else {
+                Intent returnIntent = new Intent();
+                String extra = "";
+                if (result == null) {
+                    extra = "Error while trying to delete POI";
+                } else if (result.equals("OK"))
+                    extra = "POI successfully deleted";
+                returnIntent.putExtra("result", extra);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
         }
     }
 
@@ -225,7 +275,40 @@ public class EditDeletePOI extends AppCompatActivity {
                 int responseCode = apiConnection.getResponseCode();
                 if (responseCode == 204)
                     return "OK";
+                else if(responseCode == 401) {
+                    InputStream inputStream = apiConnection.getErrorStream();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
 
+                    responseBuffer = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while((line = responseBuffer.readLine()) != null) {
+                        stringBuffer.append(line + "\n");
+                    }
+
+                    if(stringBuffer.length() == 0) {
+                        return null;
+                    }
+
+                    apiResponse = stringBuffer.toString();
+                    try {
+                        JSONObject responseJsonObject = new JSONObject(apiResponse);
+                        if(responseJsonObject.has("error")) {
+                            String message = responseJsonObject.getString("error");
+                            if(message.equals("No authorization")) {
+                                expiredKey = true;
+                                return null;
+                            }
+                        }
+                    }
+                    catch(JSONException je) {
+                        Log.e(LOG_TAG, "JSON Error", je);
+                    }
+
+                }
                 return null;
 
 
@@ -256,15 +339,25 @@ public class EditDeletePOI extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            Intent returnIntent = new Intent();
-            String extra = "";
-            if(result == null)
-                extra = "Error while trying to edit POI";
-            else if(result.equals("OK"))
-                extra = "POI successfully edited";
-            returnIntent.putExtra("result", extra);
-            setResult(Activity.RESULT_OK,returnIntent);
-            finish();
+            if(expiredKey && result == null) {
+                RefreshSessionKey rfk = new RefreshSessionKey();
+                String rfkParams[] = {};
+                rfk.execute(rfkParams);
+                EditPOIClass task = new EditPOIClass();
+                String params[] = {};
+                task.execute(params);
+            }
+            else {
+                Intent returnIntent = new Intent();
+                String extra = "";
+                if (result == null)
+                    extra = "Error while trying to edit POI";
+                else if (result.equals("OK"))
+                    extra = "POI successfully edited";
+                returnIntent.putExtra("result", extra);
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
         }
     }
 }

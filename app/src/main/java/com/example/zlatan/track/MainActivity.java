@@ -30,6 +30,7 @@ import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.views.MapView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity
     int activeTrackingPOIID;
     MarkerOptions currentMarker = null;
     boolean trackingActive = false;
+    boolean expiredKey = false;
 
     private MapView mapView = null;
     private String session_key = null;
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         contextOfApplication = getApplicationContext();
+
+        expiredKey = false;
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_main);
         fab.setVisibility(View.INVISIBLE);
@@ -207,6 +211,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
+        expiredKey = false;
         mapView.onResume();
     }
 
@@ -255,8 +260,42 @@ public class MainActivity extends AppCompatActivity
                 apiConnection.connect();
 
                 int responseCode = apiConnection.getResponseCode();
-                if(responseCode == 204)
+                if(responseCode == 204 || responseCode == 422)
                     return "OK";
+                else if(responseCode == 401) {
+                    InputStream inputStream = apiConnection.getErrorStream();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
+
+                    responseBuffer = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while((line = responseBuffer.readLine()) != null) {
+                        stringBuffer.append(line + "\n");
+                    }
+
+                    if(stringBuffer.length() == 0) {
+                        return null;
+                    }
+
+                    apiResponse = stringBuffer.toString();
+                    try {
+                        JSONObject responseJsonObject = new JSONObject(apiResponse);
+                        if(responseJsonObject.has("error")) {
+                            String message = responseJsonObject.getString("error");
+                            if(message.equals("No authorization")) {
+                                expiredKey = true;
+                                return null;
+                            }
+                        }
+                    }
+                    catch(JSONException je) {
+                        Log.e(LOG_TAG, "JSON Error", je);
+                    }
+
+                }
 
                 return null;
             }
@@ -282,13 +321,23 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String result) {
             if(result == null) {
-                Context context = getApplicationContext();
-                CharSequence text = "Something went wrong";
-                int duration = Toast.LENGTH_SHORT;
+                if(expiredKey) {
+                    RefreshSessionKey rfk = new RefreshSessionKey();
+                    String rfkParams[] = {};
+                    rfk.execute(rfkParams);
+                    StartTrackingPOIClass task = new StartTrackingPOIClass();
+                    String params[] = {Integer.toString(activeTrackingPOIID)};
+                    task.execute(params);
+                }
+                else {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Something went wrong";
+                    int duration = Toast.LENGTH_SHORT;
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.setGravity(Gravity.BOTTOM, 0, 10);
-                toast.show();
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.setGravity(Gravity.BOTTOM, 0, 10);
+                    toast.show();
+                }
             }
             else if(result.equals("OK")) {
                 trackingActive = true;
@@ -333,8 +382,14 @@ public class MainActivity extends AppCompatActivity
                 apiConnection.setRequestProperty("Authorization", "Token token=" + local_session_key);
 
                 apiConnection.connect();
-
-                InputStream inputStream = apiConnection.getInputStream();
+                InputStream inputStream;
+                int responseCode = apiConnection.getResponseCode();
+                if (responseCode == 401) {
+                    inputStream = apiConnection.getErrorStream();
+                }
+                else {
+                    inputStream = apiConnection.getInputStream();
+                }
                 StringBuffer stringBuffer = new StringBuffer();
                 if (inputStream == null) {
                     return null;
@@ -354,6 +409,13 @@ public class MainActivity extends AppCompatActivity
                 apiResponse = stringBuffer.toString();
                 try {
                     JSONObject responseJsonObject = new JSONObject(apiResponse);
+                    if(responseJsonObject.has("error")) {
+                        String message = responseJsonObject.getString("error");
+                        if(message.equals("No authorization")) {
+                            expiredKey = true;
+                            return null;
+                        }
+                    }
                     JSONObject singlePoi = responseJsonObject.getJSONObject("poi");
                     List<POI> tempData = new ArrayList<POI>();
                     String singlePoiName = singlePoi.getString("name");
@@ -427,6 +489,16 @@ public class MainActivity extends AppCompatActivity
                     }
 
                 }
+                else {
+                    if(expiredKey) {
+                        RefreshSessionKey rfk = new RefreshSessionKey();
+                        String rfkParams[] = {};
+                        rfk.execute(rfkParams);
+                        TrackPOIClass task = new TrackPOIClass();
+                        String params[] = {};
+                        task.execute(params);
+                    }
+                }
             }
         }
     }
@@ -464,8 +536,42 @@ public class MainActivity extends AppCompatActivity
                 apiConnection.connect();
 
                 int responseCode = apiConnection.getResponseCode();
-                if(responseCode == 204)
+                if(responseCode == 204 || responseCode == 422)
                     return "OK";
+                else if(responseCode == 401) {
+                    InputStream inputStream = apiConnection.getErrorStream();
+                    StringBuffer stringBuffer = new StringBuffer();
+                    if (inputStream == null) {
+                        return null;
+                    }
+
+                    responseBuffer = new BufferedReader(new InputStreamReader(inputStream));
+
+                    String line;
+                    while((line = responseBuffer.readLine()) != null) {
+                        stringBuffer.append(line + "\n");
+                    }
+
+                    if(stringBuffer.length() == 0) {
+                        return null;
+                    }
+
+                    apiResponse = stringBuffer.toString();
+                    try {
+                        JSONObject responseJsonObject = new JSONObject(apiResponse);
+                        if(responseJsonObject.has("error")) {
+                            String message = responseJsonObject.getString("error");
+                            if(message.equals("No authorization")) {
+                                expiredKey = true;
+                                return null;
+                            }
+                        }
+                    }
+                    catch(JSONException je) {
+                        Log.e(LOG_TAG, "JSON Error", je);
+                    }
+
+                }
 
                 return null;
             }
@@ -491,13 +597,23 @@ public class MainActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String result) {
             if(result == null) {
-                Context context = getApplicationContext();
-                CharSequence text = "Something went wrong";
-                int duration = Toast.LENGTH_SHORT;
+                if(expiredKey) {
+                    RefreshSessionKey rfk = new RefreshSessionKey();
+                    String rfkParams[] = {};
+                    rfk.execute(rfkParams);
+                    StopTrackingPOIClass task = new StopTrackingPOIClass();
+                    String params[] = {Integer.toString(activeTrackingPOIID)};
+                    task.execute(params);
+                }
+                else {
+                    Context context = getApplicationContext();
+                    CharSequence text = "Something went wrong";
+                    int duration = Toast.LENGTH_SHORT;
 
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.setGravity(Gravity.BOTTOM, 0, 10);
-                toast.show();
+                    Toast toast = Toast.makeText(context, text, duration);
+                    toast.setGravity(Gravity.BOTTOM, 0, 10);
+                    toast.show();
+                }
             }
             else if(result.equals("OK")) {
                 FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_main);

@@ -36,7 +36,9 @@ public class LoginActivity extends AppCompatActivity {
     public static final String KeyUsername = "usernameTestKey";
     public static final String KeyPassword = "passwordTestKey";
     public static final String KeyAppKey = "appKeyTestKey";
+    public static final String KeyComapnyId = "comapnyIdTestKey";
     SharedPreferences sharedpreferences;
+    int fetchedCompanyId;
     String enteredUsername;
     String enteredPassword;
 
@@ -121,6 +123,7 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject resposneJsonObject = new JSONObject(apiResponse);
                     JSONObject userData = resposneJsonObject.getJSONObject("user");
                     String key = userData.getString("session_key");
+                    fetchedCompanyId = userData.getInt("company_id");
                     return key;
                 }
                 catch(JSONException je) {
@@ -158,6 +161,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putString(KeyUsername, enteredUsername);
                 editor.putString(KeyPassword, enteredPassword);
                 editor.putString(KeyAppKey, result);
+                editor.putInt(KeyComapnyId, fetchedCompanyId);
                 editor.commit();
 
                 Intent mainActivityIntent = new Intent(getApplicationContext(), MainActivity.class);
