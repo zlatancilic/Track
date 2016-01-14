@@ -167,15 +167,20 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == PICK_POI_REQUEST) {
             if (resultCode == RESULT_OK) {
                 if(data.hasExtra("command_id")) {
-                    String poiId = data.getStringExtra("poi_id");
-                    String commandId = data.getStringExtra("command_id");
+                    //String poiId = data.getStringExtra("poi_id");
+                    //String commandId = data.getStringExtra("command_id");
                     Context context = getApplicationContext();
                     //String name = data.getStringExtra("poi_id");
-                    CharSequence text = poiId + " " + commandId;
+                    CharSequence text = "Click on POI to see state.";
                     int duration = Toast.LENGTH_LONG;
 
                     Toast toast = Toast.makeText(context, text, duration);
                     toast.show();
+                    String dataMessage = data.getStringExtra("poi_id");
+                    activeTrackingPOIID = Integer.parseInt(dataMessage);
+                    StartTrackingPOIClass task = new StartTrackingPOIClass();
+                    String params[] = {dataMessage};
+                    task.execute(params);
                 }
                 else {
                     String dataMessage = data.getStringExtra("poi_id");
@@ -351,6 +356,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     public class TrackPOIClass extends AsyncTask<String, Void, POI[]> {
+        private final String WINDOWS_DOWN_INFO = "Windows DOWN";
+        private final String WINDOWS_UP_INFO = "Windows UP";
+        private final String ENGINE_SHUT_INFO = "Engine SHUT";
+        private final String ENGINE_START_INFO = "Engine RUNNING";
+        private final String CAR_LOCK_INFO = "Vehicle LOCKED";
+        private final String CAR_UNLOCK_INFO = "Vehicle UNLOCKED";
         @Override
         protected POI[] doInBackground(String... params) {
             HttpURLConnection apiConnection = null;
@@ -425,7 +436,14 @@ public class MainActivity extends AppCompatActivity
                     float singlePOILat = (float) singlePoi.getDouble("lat");
                     float singlePOILon = (float) singlePoi.getDouble("lng");
                     int singlePOICompanyId = singlePoi.getInt("company_id");
+                    JSONObject singlePOIState = singlePoi.getJSONObject("state");
+                    boolean singlePOIEngine = singlePOIState.getBoolean("motor_running");
+                    boolean singlePOIWindows = singlePOIState.getBoolean("windows_up");
+                    boolean singlePOILock = singlePOIState.getBoolean("car_locked");
                     POI tempObject = new POI(singlePOIId, singlePoiName, singlePOIDescription, singlePOIDate, singlePOILat, singlePOILon, singlePOICompanyId);
+                    tempObject.setEngineRunning(singlePOIEngine);
+                    tempObject.setWindowsUp(singlePOIWindows);
+                    tempObject.setCarLocked(singlePOILock);
                     tempData.add(tempObject);
                     POI[] data = new POI[tempData.size()];
                     tempData.toArray(data);
@@ -458,6 +476,14 @@ public class MainActivity extends AppCompatActivity
             return null;
         }
 
+        private String setInfo(POI clickedPOI) {
+            String commandWindows = (!clickedPOI.getWindowsUp()) ? WINDOWS_DOWN_INFO : WINDOWS_UP_INFO;
+            String commandEngine = (!clickedPOI.getEngineRunning()) ? ENGINE_SHUT_INFO : ENGINE_START_INFO;
+            String commandLock = (!clickedPOI.getCarLocked()) ? CAR_UNLOCK_INFO : CAR_LOCK_INFO;
+
+            return commandEngine + "\n" + commandWindows + "\n" + commandLock;
+        }
+
         @Override
         protected void onPostExecute(POI[] result) {
             if(trackingActive) {
@@ -471,8 +497,9 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 mapView.setCenterCoordinate(latLong);
                                 mapView.setZoomLevel(15);
-                                currentMarker = new MarkerOptions().position(latLong).title("Vozilo" + result[0].getName()).snippet(result[0].getDescription());
+                                currentMarker = new MarkerOptions().position(latLong).title("Vozilo" + result[0].getName()).snippet(setInfo(result[0]));
                                 mapView.addMarker(currentMarker);
+                                currentMarker.getMarker().showInfoWindow();
                                 new Handler().postDelayed(new Runnable() {
                                     public void run() {
                                         TrackPOIClass task = new TrackPOIClass();

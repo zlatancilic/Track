@@ -15,6 +15,9 @@ public class POI implements java.io.Serializable {
     float latitude;
     float longitude;
     int companyId;
+    boolean engineRunning = false;
+    boolean windowsUp = false;
+    boolean carLocked = false;
 
 
 
@@ -69,6 +72,30 @@ public class POI implements java.io.Serializable {
 
     public void setDescription(String poi_description) {
         description = poi_description;
+    }
+
+    public void setEngineRunning(boolean engine) {
+        engineRunning = engine;
+    }
+
+    public void setCarLocked(boolean locked) {
+        carLocked = locked;
+    }
+
+    public void setWindowsUp(boolean windows) {
+        windowsUp = windows;
+    }
+
+    public boolean getEngineRunning() {
+        return engineRunning;
+    }
+
+    public boolean getWindowsUp() {
+        return windowsUp;
+    }
+
+    public boolean getCarLocked() {
+        return carLocked;
     }
 
     @Override
